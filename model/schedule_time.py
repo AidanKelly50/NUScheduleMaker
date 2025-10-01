@@ -40,21 +40,21 @@ def get_class_time_data(cls, time_idx):
     return cBegin, cEnd, cDays
 
 
-def does_overlap_break(classes_list, breaks_list):
-    for brk in breaks_list:
-        for cls in classes_list:
-            c1Begin, c1End, c1Days = get_class_time_data(classes_list[cls], 0)
-            c2Begin, c2End, c2Days = brk.get_break_time_data()
-            if do_two_timeblocks_overlap(c1Begin, c1End, c1Days, c2Begin, c2End, c2Days):
-                return True
+# def does_overlap_break(classes_list, breaks_list):
+#     for brk in breaks_list:
+#         for cls in classes_list:
+#             c1Begin, c1End, c1Days = get_class_time_data(classes_list[cls], 0)
+#             c2Begin, c2End, c2Days = brk.get_break_time_data()
+#             if do_two_timeblocks_overlap(c1Begin, c1End, c1Days, c2Begin, c2End, c2Days):
+#                 return True
             
-            if len(cls["meetingTimes"]) == 2:
-                c1Begin, c1End, c1Days = get_class_time_data(cls, 1)
-                c2Begin, c2End, c2Days = brk.get_break_time_data()
-                if do_two_timeblocks_overlap(c1Begin, c1End, c1Days, c2Begin, c2End, c2Days):
-                    return True
+#             if len(cls["meetingTimes"]) == 2:
+#                 c1Begin, c1End, c1Days = get_class_time_data(cls, 1)
+#                 c2Begin, c2End, c2Days = brk.get_break_time_data()
+#                 if do_two_timeblocks_overlap(c1Begin, c1End, c1Days, c2Begin, c2End, c2Days):
+#                     return True
     
-    return False
+#     return False
 
 def do_two_timeblocks_overlap(c1Begin, c1End, c1Days, c2Begin, c2End, c2Days):
     for i in range(len(c1Days)):

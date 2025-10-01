@@ -5,6 +5,8 @@ import pandas as pd
 from model.Break import *
 import model.schedule_time as st
 
+from model.Schedule import Schedule
+
 import extra_help.dataManipulation as dm
 
 class Model:
@@ -76,7 +78,7 @@ class Model:
         # BRING OUT MEETING INFO
         meeting_infos_list = []
         cr_json_data = class_response.json()["data"]
-        print(cr_json_data)
+        print("Hello", cr_json_data)
 
         for cur_section in cr_json_data:
             cur_section_meetings = []
@@ -257,3 +259,6 @@ class Model:
 
     def remove_break(self, brk):
         self.breaks_list.remove(brk)
+
+    def does_overlap_break(self):
+        print("hi")

@@ -1,4 +1,5 @@
 import requests
+import model as md
 
 def get_terms_dict(max):
     url = f"https://nubanner.neu.edu/StudentRegistrationSsb/ssb/classSearch/getTerms?offset=1&max={max}"
@@ -7,7 +8,7 @@ def get_terms_dict(max):
 
     return sems_json
 
-spring_sem_code = "202530"
+spring_sem_code = "202610"
 
 def get_subject_codes(semester_code):
     url = f"https://nubanner.neu.edu/StudentRegistrationSsb/ssb/classSearch/get_subject?&term={semester_code}&offset=1&max=300"
@@ -25,7 +26,7 @@ def get_class_sections(semester_code, subject_codes_list, class_codes_list):
     list_of_classes_sections = []
     for class_idx in range(len(subject_codes_list)):
         cur_class_sections = []
-        cur_class_df = get_class_in_semester(semester_code, subject_codes_list[class_idx], class_codes_list[class_idx])
+        cur_class_df = md.get_class_in_semester(semester_code, subject_codes_list[class_idx], class_codes_list[class_idx])
         print("cur_class_df")
         print(cur_class_df)
         for section in cur_class_df.iterrows():
