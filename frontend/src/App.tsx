@@ -8,7 +8,10 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 import { Input } from '@/components/ui/input';
-import { useSemesters, useSubjects } from './hooks/courses.hooks';
+import { useAddCourse, useCourses, useGenerateSchedules, useSchedules, useSemesters, useSubjects } from '@/hooks/courses.hooks';
+import CoursesDisplayed from '@/components/CoursesDisplayed';
+import WeeklyClassSchedule from '@/components/WeeklyClassSchedule';
+import { Dialog, DialogTrigger, DialogContent } from '@/components/ui/dialog';
 
 function App() {
   const [semesterOpen, setSemesterOpen] = useState(false);
@@ -17,10 +20,13 @@ function App() {
   const [subjectsOpen, setSubjectsOpen] = useState(false);
   const [subjectValue, setSubjectValue] = useState("");
 
-  const [classCodeValue, setClassCodeValue] = useState("");
+  const [courseCodeValue, setCourseCodeValue] = useState("");
 
   const { data: semesterData, isPending: semesterPending, error: semesterError } = useSemesters();
   const { data: subjectData, isPending: subjectPending, error: subjectError } = useSubjects(semesterValue);
+
+  const { mutate: addCourse } = useAddCourse();
+  const { data: allScheduleData } = useSchedules();
 
   return (
     <div className='p-4'>
@@ -45,9 +51,9 @@ function App() {
               </PopoverTrigger>
               <PopoverContent className="w-full p-0">
                 <Command>
-                  <CommandInput placeholder="Search framework..." />
+                  <CommandInput placeholder="Search semesters..." />
                   <CommandList>
-                    <CommandEmpty>No framework found.</CommandEmpty>
+                    <CommandEmpty>No semester found.</CommandEmpty>
                     <CommandGroup>
                       {semesterData?.map((semesterData) => (
                         <CommandItem
@@ -81,8 +87,16 @@ function App() {
 
           <div className='NUSMCard'>
             <div className='text-lg font-bold mb-2'>Courses</div>
-            <div className='flex gap-4'>
-              <Button className="">+ Add Class</Button>
+            <div className='flex gap-4 mb-4'>
+              <Button 
+                onClick={() => addCourse({
+                  semesterCode: semesterValue, 
+                  subjectCode: subjectValue,
+                  courseCode: courseCodeValue
+                })}
+              >
+                + Add Class
+              </Button>
 
               <Popover open={subjectsOpen} onOpenChange={setSubjectsOpen}>
                 <PopoverTrigger className='w-1/2'>
@@ -100,9 +114,9 @@ function App() {
                 </PopoverTrigger>
                 <PopoverContent className="p-0">
                   <Command>
-                    <CommandInput placeholder="Search framework..." />
+                    <CommandInput placeholder="Search subjects..." />
                     <CommandList>
-                      <CommandEmpty>No framework found.</CommandEmpty>
+                      <CommandEmpty>No subject found.</CommandEmpty>
                       <CommandGroup>
                         {subjectData?.map((subjectData) => (
                           <CommandItem
@@ -133,7 +147,7 @@ function App() {
                 placeholder="Class Code (0000)"
                 pattern="[0-9]*"
                 maxLength={4}
-                onChange={(e) => setClassCodeValue(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                onChange={(e) => setCourseCodeValue(e.target.value.replace(/\D/g, '').slice(0, 4))}
                 onKeyDown={(e) => {
                   if (!/[0-9]/.test(e.key) && !['Backspace', 'Delete', 'Tab', 'ArrowLeft', 'ArrowRight'].includes(e.key) && !e.ctrlKey && !e.metaKey) {
                     e.preventDefault();
@@ -141,11 +155,29 @@ function App() {
                 }}
               />
             </div>
+            <CoursesDisplayed />
           </div>
         </div>
         
         <div>
-          <div className='NUSMCard'>Hi2</div>
+          <div className='NUSMCard grid grid-cols-1'>
+            <div className='text-lg font-bold'>
+              Schedules
+              <span className='text-gray-500'> ({allScheduleData?.length})</span>
+            </div>
+            {allScheduleData?.map((schedule, index) => (
+              <Dialog key={index}>
+                <DialogTrigger asChild>
+                  <button className="cursor-pointer transition-opacity w-full text-left">
+                    <WeeklyClassSchedule classSections={schedule.sections} size="small"/>
+                  </button>
+                </DialogTrigger>
+                <DialogContent className='!max-w-[90vw] max-h-[90vh] overflow-auto bg-white p-4'>
+                  <WeeklyClassSchedule classSections={schedule.sections} size="large"/>
+                </DialogContent>
+              </Dialog>
+            ))}
+          </div>
         </div>
 
       </div>
