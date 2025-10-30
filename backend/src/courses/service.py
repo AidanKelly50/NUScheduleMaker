@@ -1,7 +1,7 @@
 
 
-from backend.src.courses.repository import CoursesRepository
-from backend.src.schemas import CalendarSection, Course, MeetingTime, Message, Schedule, Section, Semester, Subject
+from courses.repository import CoursesRepository
+from schemas import CalendarSection, Course, MeetingTime, Message, Schedule, Section, Semester, Subject
 
 
 class CoursesService:

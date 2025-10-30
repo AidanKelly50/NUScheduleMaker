@@ -1,8 +1,9 @@
 
 
+import copy
 import requests
 import pandas as pd
-import backend.src.utils.overlap_functions as overlap_functions
+import utils.overlap_functions as overlap_functions
 
 class CoursesRepository:
     def __init__(self):
@@ -121,22 +122,23 @@ class CoursesRepository:
             cur_class_sections.append(sec_dict)
 
         self.set_course_color(cur_class_sections[0]["subject"], cur_class_sections[0]["courseNumber"])
-        print(self.course_colors)
         self.all_courses.append(cur_class_sections)
 
 
     def generate_schedules(self):
-        each_class_idx = [0] * len(self.all_courses)
+        courses_combined_sections = self.combine_sections()
+
+        each_class_idx = [0] * len(courses_combined_sections)
 
         total_sch_combos = 1
-        for i in range(len(self.all_courses)):
-            total_sch_combos *= len(self.all_courses[i])
+        for i in range(len(courses_combined_sections)):
+            total_sch_combos *= len(courses_combined_sections[i])
         
         all_sch_list = []
         for total_range in range(total_sch_combos):
             cur_schedule_list = []
-            for class_num in range(len(self.all_courses)):
-                cur_schedule_list.append(self.all_courses[class_num][each_class_idx[class_num]])
+            for class_num in range(len(courses_combined_sections)):
+                cur_schedule_list.append(courses_combined_sections[class_num][each_class_idx[class_num]])
 
             # Conditions
             if (not overlap_functions.do_any_classes_overlap(cur_schedule_list)):
@@ -145,7 +147,7 @@ class CoursesRepository:
 
             # Maintains proper looping
             for back_idx in range(len(each_class_idx) -1, -1, -1):
-                if each_class_idx[back_idx] < len(self.all_courses[back_idx]) - 1:
+                if each_class_idx[back_idx] < len(courses_combined_sections[back_idx]) - 1:
                     each_class_idx[back_idx] += 1
                     break
                 else:
@@ -153,10 +155,46 @@ class CoursesRepository:
         
         self.possible_schedules = all_sch_list
 
+    def combine_sections(self):
+        courses_combined_sections = []
+
+        for course in self.all_courses:
+            course_sections = []
+            used = [False] * len(course)
+            
+            for i in range(len(course)):
+                if used[i]:
+                    continue
+                    
+                cur_section = copy.deepcopy(course[i])
+                
+                for j in range(i + 1, len(course)):
+                    if used[j]:
+                        continue
+                        
+                    if (cur_section["meetingTimes"][0]["beginTime"] == course[j]["meetingTimes"][0]["beginTime"] 
+                        and cur_section["meetingTimes"][0]["endTime"] == course[j]["meetingTimes"][0]["endTime"]
+                        and cur_section["meetingTimes"][0]["monday"] == course[j]["meetingTimes"][0]["monday"]
+                        and cur_section["meetingTimes"][0]["tuesday"] == course[j]["meetingTimes"][0]["tuesday"]
+                        and cur_section["meetingTimes"][0]["wednesday"] == course[j]["meetingTimes"][0]["wednesday"]
+                        and cur_section["meetingTimes"][0]["thursday"] == course[j]["meetingTimes"][0]["thursday"]
+                        and cur_section["meetingTimes"][0]["friday"] == course[j]["meetingTimes"][0]["friday"]):
+                        
+                        cur_section["sequenceNumber"] += "/" + course[j]["sequenceNumber"]
+                        used[j] = True
+                
+                course_sections.append(cur_section)
+            
+            courses_combined_sections.append(course_sections)
+
+        print(self.all_courses)
+        print()
+        print(courses_combined_sections)
+        return courses_combined_sections
+
+
     def course_already_exists(self, subject, course_code):
         for existing_course in self.all_courses:
-            print(len(existing_course))
-            print("Hi", existing_course)
             if subject == existing_course[0]["subject"] and course_code == existing_course[0]["courseNumber"]:
                 return True
             

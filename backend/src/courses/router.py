@@ -2,10 +2,10 @@ from typing import List
 from botocore.exceptions import ClientError
 from fastapi import APIRouter, Depends, HTTPException
 
-from backend.src.courses.repository import CoursesRepository
-from backend.src.courses.service import CoursesService
-from backend.src.schemas import CalendarSection, Course, CourseInfo, Message, Schedule, Semester, Subject
-from backend.src.courses.dependencies import get_courses_service
+from courses.repository import CoursesRepository
+from courses.service import CoursesService
+from schemas import CalendarSection, Course, CourseInfo, Message, Schedule, Semester, Subject
+from courses.dependencies import get_courses_service
 
 service = CoursesService(CoursesRepository())
 
@@ -54,10 +54,10 @@ def courses_router() -> APIRouter:
 
     @router.patch("/schedules", response_model=Message)
     async def generate_possible_schedules():
-        try:
-            return await service.generate_possible_schedules()
-        except Exception:
-            raise HTTPException(status_code=500, detail="Failed to generate schedules.")
+        # try:
+        return await service.generate_possible_schedules()
+        # except Exception:
+        #     raise HTTPException(status_code=500, detail="Failed to generate schedules.")
         
     @router.get("/schedules", response_model=List[Schedule])
     async def get_schedules():

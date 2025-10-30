@@ -1,13 +1,13 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from backend.src.courses.router import courses_router 
+from courses.router import courses_router 
 
 app = FastAPI()
 
-# Enable CORS
+# Enable CORS - FIXED
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["http://localhost:5173"],  # Changed from ["*"]
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
