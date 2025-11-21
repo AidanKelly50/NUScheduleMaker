@@ -2,11 +2,13 @@
 
 import copy
 import requests
+import httpx
 import pandas as pd
 import utils.overlap_functions as overlap_functions
 
 class CoursesRepository:
     def __init__(self):
+        self.httpx_client = httpx.AsyncClient()
         self.all_courses = []
         self.course_colors = [] # [["CS", "3500", 0], ...]
 
@@ -15,30 +17,30 @@ class CoursesRepository:
 
         # self.breaks_list = [Break("0830", "1100", [True, False, True, False, False])]
 
-    def get_all_courses(self):
+    async def get_all_courses(self):
         return self.all_courses
     
-    def get_possible_schedules(self):
+    async def get_possible_schedules(self):
         return self.possible_schedules
     
-    def get_course_color(self, subject, course_code):
+    async def get_course_color(self, subject, course_code):
         for color in self.course_colors:
             if color[0] == subject and color[1] == course_code:
                 return color[2]
             
         return self.course_colors[0][2]
 
-    def get_semesters(self):
+    async def get_semesters(self):
         sems_url = "https://nubanner.neu.edu/StudentRegistrationSsb/ssb/classSearch/getTerms?offset=1&max=15"
-        semesters = requests.get(sems_url)
+        semesters = await self.httpx_client.get(sems_url)
         return semesters
     
-    def get_subjects(self, semester_code):
+    async def get_subjects(self, semester_code):
         url = f"https://nubanner.neu.edu/StudentRegistrationSsb/ssb/classSearch/get_subject?&term={semester_code}&offset=1&max=300"
-        subjects = requests.get(url)
+        subjects = await self.httpx_client.get(url)
         return subjects
     
-    def add_course(self, semester_code, subject_code, course_code):
+    async def add_course(self, semester_code, subject_code, course_code):
         # SET TERM
         url = "https://nubanner.neu.edu/StudentRegistrationSsb/ssb/term/search"
         headers = {"Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",}
@@ -48,7 +50,7 @@ class CoursesRepository:
                 "startDatepicker": "",
                 "endDatepicker": ""}
 
-        post_response = requests.post(url, headers=headers, data=data)
+        post_response = await self.httpx_client.post(url, headers=headers, data=data)
         if post_response.status_code != 200:
             print(f"Failed to declare term. Status code: {post_response.status_code}")
             print(post_response.text)
@@ -68,7 +70,7 @@ class CoursesRepository:
         headers = {"Content-Type": "application/json"}
 
         # Make the GET request to retrieve course data
-        class_response = requests.get(base_url, headers=headers, params=params, cookies=cookies_dict)
+        class_response = await self.httpx_client.get(base_url, headers=headers, params=params, cookies=cookies_dict)
         if class_response.status_code != 200:
             print(f"Failed to retrieve course data. Status code: {class_response.status_code}")
             print(class_response.json())
@@ -78,8 +80,13 @@ class CoursesRepository:
         cr_json_data = class_response.json()["data"]
 
         for cur_section in cr_json_data:
+            # Add professor into data
+            faculty_names = await self.get_faculty_by_crn(semester_code, cur_section["courseReferenceNumber"])
+            cur_section["faculty"] = faculty_names
+
             cur_section_meetings = []
             all_meetings_info = cur_section["meetingsFaculty"]
+            
 
             for cur_meeting in all_meetings_info:
                 cur_meeting_time_info = cur_meeting["meetingTime"]
@@ -98,7 +105,7 @@ class CoursesRepository:
             meeting_infos_list.append(cur_section_meetings)
 
         # CREATE DF AND ADD METTING TIMES
-        class_df = pd.DataFrame(class_response.json()["data"])
+        class_df = pd.DataFrame(cr_json_data)
         class_df.drop(["term", "termDesc", "partOfTerm", "subjectDescription", "linkIdentifier", "isSectionLinked", 
                         "instructionalMethodDescription", "meetingsFaculty", "reservedSeatSummary", "sectionAttributes", "crossListCapacity", "crossListCount",
                         "crossListAvailable", "enrollment", "creditHourHigh", "creditHourIndicator", "crossList", "creditHours", "waitCapacity",
@@ -109,24 +116,35 @@ class CoursesRepository:
         
         return class_df
     
+
+    async def get_faculty_by_crn(self, semester_code, crn):
+        url = f"https://nubanner.neu.edu/StudentRegistrationSsb/ssb/searchResults/getFacultyMeetingTimes?term={semester_code}&courseReferenceNumber={crn}"
+        faculty_info = (await self.httpx_client.get(url)).json()["fmt"][0]["faculty"]
+
+        faculty = []
+        for prof in faculty_info:
+            faculty.append(prof["displayName"])
+
+        return faculty
+
     # TODO: Add location filters back
-    def add_course_to_list(self, semester_code, subject_code, course_code):
-        if self.course_already_exists(subject_code, course_code):
+    async def add_course_to_list(self, semester_code, subject_code, course_code):
+        if (await self.course_already_exists(subject_code, course_code)):
             return
 
-        cur_class_df = self.add_course(semester_code, subject_code, course_code)
+        cur_class_df = await self.add_course(semester_code, subject_code, course_code)
 
         cur_class_sections = []
         for section in cur_class_df.iterrows():
             sec_dict = section[1].to_dict()
             cur_class_sections.append(sec_dict)
 
-        self.set_course_color(cur_class_sections[0]["subject"], cur_class_sections[0]["courseNumber"])
+        await self.set_course_color(cur_class_sections[0]["subject"], cur_class_sections[0]["courseNumber"])
         self.all_courses.append(cur_class_sections)
 
 
-    def generate_schedules(self):
-        courses_combined_sections = self.combine_sections()
+    async def generate_schedules(self):
+        courses_combined_sections = await self.combine_sections()
 
         each_class_idx = [0] * len(courses_combined_sections)
 
@@ -155,7 +173,7 @@ class CoursesRepository:
         
         self.possible_schedules = all_sch_list
 
-    def combine_sections(self):
+    async def combine_sections(self):
         courses_combined_sections = []
 
         for course in self.all_courses:
@@ -184,23 +202,19 @@ class CoursesRepository:
                         used[j] = True
                 
                 course_sections.append(cur_section)
-            
             courses_combined_sections.append(course_sections)
 
-        print(self.all_courses)
-        print()
-        print(courses_combined_sections)
         return courses_combined_sections
 
 
-    def course_already_exists(self, subject, course_code):
+    async def course_already_exists(self, subject, course_code):
         for existing_course in self.all_courses:
             if subject == existing_course[0]["subject"] and course_code == existing_course[0]["courseNumber"]:
                 return True
             
         return False
     
-    def set_course_color(self, subject, course_code):
+    async def set_course_color(self, subject, course_code):
         colors_list = []
         for color_item in self.course_colors:
             colors_list.append(color_item[2])
@@ -213,3 +227,4 @@ class CoursesRepository:
         # Default to first color
         self.course_colors.append([subject, course_code, 0])
         return 0
+    

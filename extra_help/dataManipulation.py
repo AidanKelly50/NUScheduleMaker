@@ -27,8 +27,7 @@ def get_class_sections(semester_code, subject_codes_list, class_codes_list):
     for class_idx in range(len(subject_codes_list)):
         cur_class_sections = []
         cur_class_df = md.get_class_in_semester(semester_code, subject_codes_list[class_idx], class_codes_list[class_idx])
-        print("cur_class_df")
-        print(cur_class_df)
+
         for section in cur_class_df.iterrows():
             cur_class_sections.append(section[1].to_dict())
         

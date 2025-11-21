@@ -11,19 +11,19 @@ class CoursesService:
         self.used_color_codes = []
 
     async def list_semesters(self):
-        raw_data = self.repository.get_semesters().json()
+        raw_data = (await self.repository.get_semesters()).json()
         semesters = [Semester(**item) for item in raw_data]
         
         return semesters
     
     async def list_subjects(self, sem):
-        raw_data = self.repository.get_subjects(sem).json()
+        raw_data = (await self.repository.get_subjects(sem)).json()
         subjects = [Subject(**item) for item in raw_data]
         
         return subjects
 
     async def add_course(self, semester_code, subject_code, course_code):
-        self.repository.add_course_to_list(semester_code, subject_code, course_code)
+        await self.repository.add_course_to_list(semester_code, subject_code, course_code)
         return Message(text="Added course")
     
     def format_meetings(self, meetings_list):
@@ -44,7 +44,7 @@ class CoursesService:
         return formatted_meetings
     
     async def list_all_courses(self):
-        all_courses = self.repository.get_all_courses()
+        all_courses = await self.repository.get_all_courses()
         formatted_courses = []
 
         for course in all_courses:
@@ -71,19 +71,19 @@ class CoursesService:
                 course_number=course[0]["courseNumber"],
                 course_title=course[0]["courseTitle"],
                 sections=formatted_sections,
-                color_code=self.repository.get_course_color(course[0]["subject"], course[0]["courseNumber"])
+                color_code=(await self.repository.get_course_color(course[0]["subject"], course[0]["courseNumber"]))
             )
             formatted_courses.append(cur_course)
 
         return formatted_courses
 
     async def generate_possible_schedules(self):
-        self.repository.generate_schedules()
+        await self.repository.generate_schedules()
         return Message(text="Schedules Generated.")
     
     async def get_schedules(self):
         all_courses = await self.list_all_courses()
-        all_schedules = self.repository.get_possible_schedules()
+        all_schedules = await self.repository.get_possible_schedules()
 
         formatted_schedules = []
 
