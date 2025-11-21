@@ -1,11 +1,12 @@
 import { useCourses } from "@/hooks/courses.hooks";
 import type { MeetingTime, Section } from "@/types";
-import { classColors, fillColors, stringToTimestring } from "@/lib/utils";
+import { classColors, stringToTimestring } from "@/lib/utils";
 import { Circle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Toggle } from "@/components/ui/toggle";
 
 export default function CoursesDisplay() {
   const { data } = useCourses();
-  console.log(data);
 
   const getTimeText = (section: Section) => {
     let result: string = "";
@@ -54,26 +55,35 @@ export default function CoursesDisplay() {
     <div>
       {data?.map((course) => (
         <div>
-          <div className="flex text-lg font-bold">
+          <div className="flex text-lg font-bold items-center">
             <Circle
-              className={`${
-                classColors[course.colorCode]
-              } flex-shrink-0 bg-white text-white mr-1 mb-auto mt-1`}
+              className={`${classColors[course.colorCode]} flex-shrink-0 bg-white text-white mr-1`}
               size={20}
             />
             {course.subject}
             {course.courseNumber}: {course.courseTitle}
+            <Button variant={"destructive"} className="ml-auto h-8 w-32">
+              Remove Course
+            </Button>
           </div>
 
           {course.sections.map((section) => (
-            <div className="pl-7 text-[15px] mb-1.5">
-              Section: {section.sequenceNumber} | {getTimeText(section)}
-              <br />
-              <span className="pl-4">
-                CRN: {section.courseReferenceNumber} | Prof:{" "}
-                {section.faculty[0] ? section.faculty[0] : "TBD"} | Seats Left:{" "}
-                {section.seatsAvailable}/{section.maximumEnrollment}
-              </span>
+            <div className="flex items-center">
+              <div className="pl-7 text-[15px] mb-1.5">
+                Section: {section.sequenceNumber} | {getTimeText(section)} | CRN:{" "}
+                {section.courseReferenceNumber}
+                <br />
+                <span className="pl-4">
+                  Prof: {section.faculty[0] ? section.faculty[0] : "TBD"} | Seats Left:{" "}
+                  {section.seatsAvailable}/{section.maximumEnrollment}
+                </span>
+              </div>
+              <Toggle variant={"secondary"} className="ml-auto h-8 w-32">
+                Lock Section
+              </Toggle>
+              <Toggle variant={"secondary"} className="ml-4 h-8 w-32">
+                Ignore Section
+              </Toggle>
             </div>
           ))}
         </div>

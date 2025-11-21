@@ -19,7 +19,7 @@ def get_subject_codes(semester_code):
 # subject_codes_list and class_codes_list must have same length
 def get_class_sections(semester_code, subject_codes_list, class_codes_list):
     if len(subject_codes_list) != len(class_codes_list):
-        print("ERROR: getClassSections() line 2")
+        print("ERROR: get_class_sections() line 2")
 
     # [ class0,     class1,     class2]
     # [[sections], [sections], [sections]]
@@ -32,7 +32,6 @@ def get_class_sections(semester_code, subject_codes_list, class_codes_list):
             cur_class_sections.append(section[1].to_dict())
         
         list_of_classes_sections.append(cur_class_sections)
-        print(list_of_classes_sections)
 
     return list_of_classes_sections
 
