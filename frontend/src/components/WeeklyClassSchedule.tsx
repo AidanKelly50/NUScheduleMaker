@@ -116,8 +116,8 @@ export default function WeeklyClassSchedule({
       friday: [],
     };
 
-    classSections.forEach((section, index) => {
-      const colorClass = classColors[index % classColors.length];
+    classSections.forEach((section) => {
+      //const colorClass = classColors[index % classColors.length];
 
       section.meetingTimes.forEach((meeting) => {
         dayKeys.forEach((day) => {

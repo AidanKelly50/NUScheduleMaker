@@ -4,6 +4,7 @@ import { classColors, stringToTimestring } from "@/lib/utils";
 import { Circle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Toggle } from "@/components/ui/toggle";
+import { Separator } from "@/components/ui/separator";
 
 export default function CoursesDisplay() {
   const { data } = useCourses();
@@ -55,6 +56,7 @@ export default function CoursesDisplay() {
     <div>
       {data?.map((course) => (
         <div>
+          <Separator className="my-2" />
           <div className="flex text-lg font-bold items-center">
             <Circle
               className={`${classColors[course.colorCode]} flex-shrink-0 bg-white text-white mr-1`}
