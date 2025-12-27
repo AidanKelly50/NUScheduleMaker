@@ -1,9 +1,9 @@
 from typing import List
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, HTTPException
 
 from courses.repository import CoursesRepository
 from courses.service import CoursesService
-from schemas import CalendarSection, Course, CourseInfo, Message, Schedule, Semester, Subject
+from schemas import Course, CourseInfo, Message, Schedule, Semester, Subject
 from courses.dependencies import get_courses_service
 
 service = CoursesService(CoursesRepository())
