@@ -1,7 +1,6 @@
 
 
 import copy
-import requests
 import httpx
 import pandas as pd
 import utils.overlap_functions as overlap_functions
