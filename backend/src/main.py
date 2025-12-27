@@ -7,7 +7,8 @@ app = FastAPI()
 # Enable CORS - FIXED
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # Changed from ["*"]
+    allow_origins=["http://localhost:5173",
+                    "https://nu-schedule-maker.aidanjkelly.com"],  # Changed from ["*"]
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
