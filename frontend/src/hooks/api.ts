@@ -1,24 +1,25 @@
-import axios from 'axios';
-import { createAxiosDateTransformer } from 'axios-date-transformer';
+import axios from "axios";
+import { createAxiosDateTransformer } from "axios-date-transformer";
 
-export const API_URL = 'http://localhost:3001';
+export const API_URL = import.meta.env.VITE_API_URL;
+console.log(API_URL);
 
 export default createAxiosDateTransformer({
   baseURL: API_URL,
   withCredentials: true,
   timeout: 10000,
   paramsSerializer: {
-    indexes: null
-  }
+    indexes: null,
+  },
 });
 
 // api for external calls
 export const externalApi = axios.create({
-  timeout: 10000
+  timeout: 10000,
 });
 
 // support for _retry flag
-declare module 'axios' {
+declare module "axios" {
   interface AxiosRequestConfig {
     _retry?: boolean;
   }
