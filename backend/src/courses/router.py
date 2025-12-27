@@ -1,5 +1,4 @@
 from typing import List
-from botocore.exceptions import ClientError
 from fastapi import APIRouter, Depends, HTTPException
 
 from courses.repository import CoursesRepository
