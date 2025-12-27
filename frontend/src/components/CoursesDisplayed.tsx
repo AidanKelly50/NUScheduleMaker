@@ -5,6 +5,7 @@ import { Circle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Toggle } from "@/components/ui/toggle";
 import { Separator } from "@/components/ui/separator";
+import { HoverCard, HoverCardTrigger, HoverCardContent } from "@/components/ui/hover-card";
 
 export default function CoursesDisplay() {
   const { data } = useCourses();
@@ -52,6 +53,45 @@ export default function CoursesDisplay() {
     return result;
   };
 
+  const getDayAbbreviations = (section: Section) => {
+    let result: string = "";
+
+    if (section.campusDescription == "Online") {
+      result += "Online ";
+    }
+
+    let timesList: MeetingTime[] = section.meetingTimes;
+    if (
+      timesList[0].monday ||
+      timesList[0].tuesday ||
+      timesList[0].wednesday ||
+      timesList[0].thursday ||
+      timesList[0].friday
+    ) {
+      timesList.forEach((time) => {
+        if (time.monday) {
+          result += "M";
+        }
+        if (time.tuesday) {
+          result += "T";
+        }
+        if (time.wednesday) {
+          result += "W";
+        }
+        if (time.thursday) {
+          result += "R";
+        }
+        if (time.friday) {
+          result += "F";
+        }
+      });
+    } else {
+      result += "Async ";
+    }
+
+    return result;
+  };
+
   return (
     <div>
       {data?.map((course) => (
@@ -72,8 +112,22 @@ export default function CoursesDisplay() {
           {course.sections.map((section) => (
             <div className="flex items-center">
               <div className="pl-7 text-[15px] mb-1.5">
-                Section: {section.sequenceNumber} | {getTimeText(section)} | CRN:{" "}
-                {section.courseReferenceNumber}
+                Section: {section.sequenceNumber} |{" "}
+                {getTimeText(section).length <= 24 ? (
+                  getTimeText(section) + " "
+                ) : (
+                  <span>
+                    {getDayAbbreviations(section)}
+                    <HoverCard>
+                      <HoverCardTrigger className="text-muted-foreground">
+                        {" "}
+                        See Times{" "}
+                      </HoverCardTrigger>
+                      <HoverCardContent>{getTimeText(section)}</HoverCardContent>
+                    </HoverCard>
+                  </span>
+                )}
+                | CRN: {section.courseReferenceNumber}
                 <br />
                 <span className="pl-4">
                   Prof: {section.faculty[0] ? section.faculty[0] : "TBD"} | Seats Left:{" "}
