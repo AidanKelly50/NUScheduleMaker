@@ -1,13 +1,12 @@
-
-import api from '@/hooks/api';
-import type { Course, Message, Schedule, Semester, Subject } from '@/types';
+import api from "@/hooks/api";
+import type { Course, Message, Schedule, Semester, Subject } from "@/types";
 
 /**
  * Fetch semesters from the API.
  * @returns A list of Semesters.
  */
 export const getSemesters = async () => {
-  const { data }: { data: Semester[] } = await api.get('/semesters');
+  const { data }: { data: Semester[] } = await api.get("/semesters");
   return data;
 };
 
@@ -27,25 +26,29 @@ export const getSubjects = async (semester: string) => {
  * @param courseCode The code of the course to add
  * @returns Success message
  */
-export const addCourse = async (
-    { semesterCode, subjectCode, courseCode }: 
-    { semesterCode: string, subjectCode: string, courseCode: string }
-) => {
-  const { data }: { data: Message } = await api.patch('/addcourse', {
+export const addCourse = async ({
+  semesterCode,
+  subjectCode,
+  courseCode,
+}: {
+  semesterCode: string;
+  subjectCode: string;
+  courseCode: string;
+}) => {
+  const { data }: { data: Message } = await api.patch("/addcourse", {
     semesterCode: semesterCode,
     subjectCode: subjectCode,
-    courseCode: courseCode
+    courseCode: courseCode,
   });
   return data;
 };
-
 
 /**
  * Fetch semesters from the API.
  * @returns A list of Semesters.
  */
 export const getCourses = async () => {
-  const { data }: { data: Course[] } = await api.get('/allcourses');
+  const { data }: { data: Course[] } = await api.get("/allcourses");
   return data;
 };
 
@@ -54,7 +57,7 @@ export const getCourses = async () => {
  * @returns A list of Schedules.
  */
 export const generateSchedules = async () => {
-  const { data }: { data: Message } = await api.patch('/schedules');
+  const { data }: { data: Message } = await api.patch("/schedules");
   return data;
 };
 
@@ -63,6 +66,26 @@ export const generateSchedules = async () => {
  * @returns A list of Schedules.
  */
 export const getSchedules = async () => {
-  const { data }: { data: Schedule[] } = await api.get('/schedules');
+  const { data }: { data: Schedule[] } = await api.get("/schedules");
+  return data;
+};
+
+/**
+ * Remove a course from the API.
+ * @param subjectCode The code of the subject of the course to remove
+ * @param courseCode The code of the course to remove
+ * @returns Success message
+ */
+export const removeCourse = async ({
+  subjectCode,
+  courseCode,
+}: {
+  subjectCode: string;
+  courseCode: string;
+}) => {
+  const { data }: { data: Message } = await api.patch("/removecourse", {
+    subjectCode: subjectCode,
+    courseCode: courseCode,
+  });
   return data;
 };

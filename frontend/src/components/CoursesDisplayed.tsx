@@ -1,4 +1,4 @@
-import { useCourses } from "@/hooks/courses.hooks";
+import { useCourses, useRemoveCourse } from "@/hooks/courses.hooks";
 import type { MeetingTime, Section } from "@/types";
 import { classColors, stringToTimestring } from "@/lib/utils";
 import { Circle } from "lucide-react";
@@ -9,6 +9,7 @@ import { HoverCard, HoverCardTrigger, HoverCardContent } from "@/components/ui/h
 
 export default function CoursesDisplay() {
   const { data } = useCourses();
+  const { mutate: removeCourse } = useRemoveCourse();
 
   const getTimeText = (section: Section) => {
     let result: string = "";
@@ -104,7 +105,16 @@ export default function CoursesDisplay() {
             />
             {course.subject}
             {course.courseNumber}: {course.courseTitle}
-            <Button variant={"destructive"} className="ml-auto h-8 w-32">
+            <Button
+              variant={"destructive"}
+              onClick={() =>
+                removeCourse({
+                  subjectCode: course.subject,
+                  courseCode: course.courseNumber,
+                })
+              }
+              className="ml-auto h-8 w-32"
+            >
               Remove Course
             </Button>
           </div>

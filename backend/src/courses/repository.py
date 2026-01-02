@@ -53,7 +53,7 @@ class CoursesRepository:
             print(post_response.text)
         # Get cookie data
         cookie_jar = post_response.cookies
-        cookies_dict = {cookie.name: cookie.value for cookie in cookie_jar}
+        cookies_dict = dict(cookie_jar)
 
         # GET COURSE DATA
         base_url = "https://nubanner.neu.edu/StudentRegistrationSsb/ssb/searchResults/searchResults"
@@ -138,6 +138,15 @@ class CoursesRepository:
 
         await self.set_course_color(cur_class_sections[0]["subject"], cur_class_sections[0]["courseNumber"])
         self.all_courses.append(cur_class_sections)
+
+    async def remove_course_from_list(self, subject_code, course_code):
+        print(self.all_courses)
+        for course in self.all_courses:
+            if course[0]["subject"] == subject_code and course[0]["courseNumber"] == course_code:
+                self.all_courses.remove(course)
+                return True
+            
+        return False
 
 
     async def generate_schedules(self):

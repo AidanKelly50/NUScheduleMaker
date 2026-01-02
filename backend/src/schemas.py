@@ -6,7 +6,7 @@ class BaseAPIModel(BaseModel):
     model_config = ConfigDict(alias_generator=to_camel, populate_by_name=True)
 
 class CourseInfo(BaseAPIModel):
-    semester_code: str
+    semester_code: Optional[str] = None
     subject_code: str
     course_code: str
 

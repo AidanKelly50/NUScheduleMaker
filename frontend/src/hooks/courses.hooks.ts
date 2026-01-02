@@ -1,29 +1,36 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner';
-import { getSemesters, getSubjects, addCourse, getCourses, generateSchedules, getSchedules } from '@/hooks/courses.api';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import {
+  getSemesters,
+  getSubjects,
+  addCourse,
+  getCourses,
+  generateSchedules,
+  getSchedules,
+  removeCourse,
+} from "@/hooks/courses.api";
 
 /**
  * A react-query hook to fetch all of the semesters.
  * @returns A react-query hook to fetch semesters.
  */
 export const useSemesters = () => {
-    return useQuery({
-        queryKey: ['semesters'],
-        queryFn: () => getSemesters()
-    });
+  return useQuery({
+    queryKey: ["semesters"],
+    queryFn: () => getSemesters(),
+  });
 };
-
 
 /**
  * A react-query hook to fetch all of the subjects.
  * @returns A react-query hook to fetch subjects.
  */
 export const useSubjects = (semester: string) => {
-    return useQuery({
-        queryKey: ['subjects', semester],
-        queryFn: () => getSubjects(semester),
-        enabled: !!semester
-    });
+  return useQuery({
+    queryKey: ["subjects", semester],
+    queryFn: () => getSubjects(semester),
+    enabled: !!semester,
+  });
 };
 
 /**
@@ -37,21 +44,27 @@ export const useAddCourse = () => {
     mutationFn: addCourse,
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ['courses']
+        queryKey: ["courses"],
       });
-    }
+    },
   });
 
-  const mutate = async (
-    { semesterCode, subjectCode, courseCode }: 
-    { semesterCode: string, subjectCode: string, courseCode: string }) =>
+  const mutate = async ({
+    semesterCode,
+    subjectCode,
+    courseCode,
+  }: {
+    semesterCode: string;
+    subjectCode: string;
+    courseCode: string;
+  }) =>
     toast.promise(mutation.mutateAsync({ semesterCode, subjectCode, courseCode }), {
-      loading: 'Adding course...',
+      loading: "Adding course...",
       success: () => ({
-        message: 'Course added successfully.',
-        description: `${subjectCode} ${courseCode}`
+        message: "Course added successfully.",
+        description: `${subjectCode} ${courseCode}`,
       }),
-      error: 'An error occurred while adding the course.'
+      error: "An error occurred while adding the course.",
     });
   return { ...mutation, mutate };
 };
@@ -61,10 +74,10 @@ export const useAddCourse = () => {
  * @returns A react-query hook to fetch courses.
  */
 export const useCourses = () => {
-    return useQuery({
-        queryKey: ['courses'],
-        queryFn: () => getCourses()
-    });
+  return useQuery({
+    queryKey: ["courses"],
+    queryFn: () => getCourses(),
+  });
 };
 
 /**
@@ -78,19 +91,19 @@ export const useGenerateSchedules = () => {
     mutationFn: generateSchedules,
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ['schedules']
+        queryKey: ["schedules"],
       });
-    }
+    },
   });
 
   const mutate = async () =>
     toast.promise(mutation.mutateAsync(), {
-      loading: 'Generating schedules...',
+      loading: "Generating schedules...",
       success: () => ({
-        message: 'Schedules generated successfully.',
-        description: 'Generates schedules.'
+        message: "Schedules generated successfully.",
+        description: "Generates schedules.",
       }),
-      error: 'An error occurred while generating schedules.'
+      error: "An error occurred while generating schedules.",
     });
   return { ...mutation, mutate };
 };
@@ -100,8 +113,36 @@ export const useGenerateSchedules = () => {
  * @returns A react-query hook to fetch schedules.
  */
 export const useSchedules = () => {
-    return useQuery({
-        queryKey: ['schedules'],
-        queryFn: () => getSchedules()
+  return useQuery({
+    queryKey: ["schedules"],
+    queryFn: () => getSchedules(),
+  });
+};
+
+/**
+ * A react-query mutation hook to delete a course from the list of selected courses, including a toast notification
+ * @returns A react-query mutation hook to delete a course, including a toast notification
+ */
+export const useRemoveCourse = () => {
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: removeCourse,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["courses"],
+      });
+    },
+  });
+
+  const mutate = async ({ subjectCode, courseCode }: { subjectCode: string; courseCode: string }) =>
+    toast.promise(mutation.mutateAsync({ subjectCode, courseCode }), {
+      loading: "Removing course...",
+      success: () => ({
+        message: "Course removed successfully.",
+        description: `${subjectCode} ${courseCode}`,
+      }),
+      error: "An error occurred while removing the course.",
     });
+  return { ...mutation, mutate };
 };

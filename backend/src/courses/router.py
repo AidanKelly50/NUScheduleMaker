@@ -13,11 +13,11 @@ def courses_router() -> APIRouter:
 
     @router.get("/semesters", response_model=List[Semester])
     async def get_semesters():
-        try:
-            return await service.list_semesters()
+        # try:
+        return await service.list_semesters()
         
-        except Exception:
-            raise HTTPException(status_code=500, detail="Failed to get semesters.")
+        # except Exception:
+        #     raise HTTPException(status_code=500, detail="Failed to get semesters.")
         
     
     @router.get("/subjects/{semester_code}", response_model=List[Subject])
@@ -64,6 +64,16 @@ def courses_router() -> APIRouter:
         return await service.get_schedules()
         # except Exception:
         #     raise HTTPException(status_code=500, detail="Failed to get schedules.")
+
+    @router.patch("/removecourse", response_model=Message)
+    async def remove_given_course(
+        course_info: CourseInfo,
+    ):
+        # try:
+        return await service.remove_course(course_info.subject_code, course_info.course_code)
+        
+        # except Exception:
+        #     raise HTTPException(status_code=500, detail="Failed to get course sections.")
     
     return router
 

@@ -26,6 +26,10 @@ class CoursesService:
         await self.repository.add_course_to_list(semester_code, subject_code, course_code)
         return Message(text="Added course")
     
+    async def remove_course(self, subject_code, course_code):
+        await self.repository.remove_course_from_list(subject_code, course_code)
+        return Message(text="Removed course")
+    
     def format_meetings(self, meetings_list):
         formatted_meetings = []
         for meeting in meetings_list:
