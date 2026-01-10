@@ -12,63 +12,7 @@ export default function WeeklyClassSchedule({
 }) {
   const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
   const dayKeys: string[] = ["monday", "tuesday", "wednesday", "thursday", "friday"];
-
-  // Size configurations
-  const sizeConfig = {
-    large: {
-      timeWidth: "w-16",
-      headerHeight: "h-10",
-      hourHeight: 45,
-      totalHeight: "495px",
-      titleText: "text-xl",
-      headerText: "text-base",
-      timeText: "text-xs",
-      classTitle: "text-sm",
-      classTime: "text-xs",
-      padding: "p-2",
-      classPadding: "px-1.5 py-1",
-      minClassHeight: "20px",
-    },
-    small: {
-      timeWidth: "w-10",
-      headerHeight: "h-6",
-      hourHeight: 20,
-      totalHeight: "220px",
-      titleText: "text-lg",
-      headerText: "text-xs",
-      timeText: "text-[10px]",
-      classTitle: "text-[10px]",
-      classTime: "text-[9px]",
-      padding: "p-2",
-      classPadding: "p-0.5",
-      minClassHeight: "10px",
-    },
-  };
-
-  const config = size == "large" ? sizeConfig.large : sizeConfig.small;
-
-  // Convert 24-hour time to AM/PM format
-  const formatTimeAMPM = (timeStr: string, short: boolean = false): string => {
-    const [hours, minutes] = timeStr.split(":").map(Number);
-    const period = hours >= 12 ? "PM" : "AM";
-    const displayHours = hours % 12 || 12;
-
-    if (short && size === "small") {
-      return `${displayHours}${period}`;
-    }
-    return `${displayHours}:${minutes.toString().padStart(2, "0")} ${period}`;
-  };
-
-  // Generate time slots from 8 AM to 6 PM
-  const generateTimeSlots = (): string[] => {
-    const slots: string[] = [];
-    for (let hour = 8; hour <= 18; hour++) {
-      slots.push(`${hour.toString().padStart(2, "0")}:00`);
-    }
-    return slots;
-  };
-
-  const timeSlots = generateTimeSlots();
+  console.log(classSections);
 
   // Convert time string to minutes for calculations
   const timeToMinutes = (timeStr: string): number => {
@@ -90,6 +34,81 @@ export default function WeeklyClassSchedule({
 
     return hour24 * 60 + minutes;
   };
+
+  // Determine the latest end time from all classes
+  const getLatestEndTime = (): number => {
+    let latestHour = 18; // Default to 6 PM
+
+    classSections.forEach((section) => {
+      section.meetingTimes.forEach((meeting) => {
+        const endMinutes = timeToMinutes(stringToTimestring(meeting.endTime));
+        // If any class ends after 6:00 PM (1080 minutes)
+        if (endMinutes > 18 * 60) {
+          latestHour = 22; // Extend to 10 PM if any class ends after 6 PM
+        }
+      });
+    });
+
+    return latestHour;
+  };
+
+  const endHour = getLatestEndTime();
+  const numberOfHours = endHour - 8;
+
+  // Size configurations with dynamic totalHeight
+  const sizeConfig = {
+    large: {
+      timeWidth: "w-16",
+      headerHeight: "h-10",
+      hourHeight: 45,
+      totalHeight: `${numberOfHours * 45}px`,
+      titleText: "text-xl",
+      headerText: "text-base",
+      timeText: "text-xs",
+      classTitle: "text-sm",
+      classTime: "text-xs",
+      padding: "p-2",
+      classPadding: "px-1.5 py-1",
+      minClassHeight: "20px",
+    },
+    small: {
+      timeWidth: "w-10",
+      headerHeight: "h-6",
+      hourHeight: 20,
+      totalHeight: `${numberOfHours * 20}px`,
+      titleText: "text-lg",
+      headerText: "text-xs",
+      timeText: "text-[10px]",
+      classTitle: "text-[10px]",
+      classTime: "text-[9px]",
+      padding: "p-2",
+      classPadding: "p-0.5",
+      minClassHeight: "10px",
+    },
+  };
+
+  const config = size == "large" ? sizeConfig.large : sizeConfig.small; // Convert 24-hour time to AM/PM format
+  const formatTimeAMPM = (timeStr: string, short: boolean = false): string => {
+    const [hours, minutes] = timeStr.split(":").map(Number);
+    const period = hours >= 12 ? "PM" : "AM";
+    const displayHours = hours % 12 || 12;
+
+    if (short && size === "small") {
+      return `${displayHours}${period}`;
+    }
+    return `${displayHours}:${minutes.toString().padStart(2, "0")} ${period}`;
+  };
+
+  // Generate time slots from 8 AM to adaptive end time
+  const generateTimeSlots = (): string[] => {
+    const slots: string[] = [];
+    for (let hour = 8; hour <= endHour; hour++) {
+      slots.push(`${hour.toString().padStart(2, "0")}:00`);
+    }
+    return slots;
+  };
+
+  const timeSlots = generateTimeSlots();
 
   // Get position and height for a class block
   const getClassPosition = (

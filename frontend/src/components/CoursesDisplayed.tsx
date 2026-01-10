@@ -94,8 +94,6 @@ export default function CoursesDisplay() {
     return result;
   };
 
-  console.log(data);
-
   return (
     <div>
       {data?.map((course) => (

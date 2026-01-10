@@ -200,7 +200,6 @@ class CoursesRepository:
                         continue
                         
                     # Check if section is active, meetingTimes match, and days match.
-                    print(course[j]["active"])
                     if (course[j]["active"]
                         and cur_section["meetingTimes"][0]["beginTime"] == course[j]["meetingTimes"][0]["beginTime"] 
                         and cur_section["meetingTimes"][0]["endTime"] == course[j]["meetingTimes"][0]["endTime"]
@@ -260,7 +259,6 @@ class CoursesRepository:
     #                         available_count += 1
     #             if available_count == 1:
     #                 locking = False
-    #             print("locking", locking)
     #             for section in course:
     #                 if not locking:
     #                     section["active"] = True

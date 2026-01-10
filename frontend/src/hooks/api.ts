@@ -2,7 +2,6 @@ import axios from "axios";
 import { createAxiosDateTransformer } from "axios-date-transformer";
 
 export const API_URL = import.meta.env.VITE_API_URL;
-console.log(API_URL);
 
 export default createAxiosDateTransformer({
   baseURL: API_URL,
