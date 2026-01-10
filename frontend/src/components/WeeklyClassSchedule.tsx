@@ -12,7 +12,6 @@ export default function WeeklyClassSchedule({
 }) {
   const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
   const dayKeys: string[] = ["monday", "tuesday", "wednesday", "thursday", "friday"];
-  console.log(classSections);
 
   // Convert time string to minutes for calculations
   const timeToMinutes = (timeStr: string): number => {
