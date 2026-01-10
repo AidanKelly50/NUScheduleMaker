@@ -26,6 +26,7 @@ export interface Section {
   faculty: string[];
   instructionalMethod: string;
   meetingTimes: MeetingTime[];
+  active: boolean;
 }
 
 export interface CalendarSection extends Section {

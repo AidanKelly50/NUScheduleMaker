@@ -8,6 +8,7 @@ import {
   generateSchedules,
   getSchedules,
   removeCourse,
+  toggleIgnoreSection,
 } from "@/hooks/courses.api";
 
 /**
@@ -146,3 +147,75 @@ export const useRemoveCourse = () => {
     });
   return { ...mutation, mutate };
 };
+
+/**
+ * A react-query mutation hook to set a section to ignored, including a toast notification
+ * @returns A react-query mutation hook to delete a course, including a toast notification
+ */
+export const useIgnoreSection = () => {
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: toggleIgnoreSection,
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["courses"],
+      });
+    },
+  });
+
+  const mutate = async ({
+    subjectCode,
+    courseCode,
+    sectionCode,
+  }: {
+    subjectCode: string;
+    courseCode: string;
+    sectionCode: string;
+  }) =>
+    toast.promise(mutation.mutateAsync({ subjectCode, courseCode, sectionCode }), {
+      loading: "Ignoring/unignoring section...",
+      success: () => ({
+        message: "Section status changed successfully.",
+        description: `${subjectCode} ${courseCode} ${sectionCode}`,
+      }),
+      error: "An error occurred while ignoring/unignoring the section.",
+    });
+  return { ...mutation, mutate };
+};
+
+// /**
+//  * A react-query mutation hook to lock a section of a course, including a toast notification
+//  * @returns A react-query mutation hook lock a section, including a toast notification
+//  */
+// export const useLockSection = () => {
+//   const queryClient = useQueryClient();
+
+//   const mutation = useMutation({
+//     mutationFn: toggleLockSection,
+//     onSuccess: () => {
+//       queryClient.invalidateQueries({
+//         queryKey: ["courses"],
+//       });
+//     },
+//   });
+
+//   const mutate = async ({
+//     subjectCode,
+//     courseCode,
+//     sectionCode,
+//   }: {
+//     subjectCode: string;
+//     courseCode: string;
+//     sectionCode: string;
+//   }) =>
+//     toast.promise(mutation.mutateAsync({ subjectCode, courseCode, sectionCode }), {
+//       loading: "Locking/unlocking section...",
+//       success: () => ({
+//         message: "Section statuses changed successfully.",
+//         description: `${subjectCode} ${courseCode}`,
+//       }),
+//       error: "An error occurred while locking/unlocking section.",
+//     });
+//   return { ...mutation, mutate };
+// };

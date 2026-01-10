@@ -134,13 +134,13 @@ class CoursesRepository:
         cur_class_sections = []
         for section in cur_class_df.iterrows():
             sec_dict = section[1].to_dict()
+            sec_dict["active"] = True
             cur_class_sections.append(sec_dict)
 
         await self.set_course_color(cur_class_sections[0]["subject"], cur_class_sections[0]["courseNumber"])
         self.all_courses.append(cur_class_sections)
 
     async def remove_course_from_list(self, subject_code, course_code):
-        print(self.all_courses)
         for course in self.all_courses:
             if course[0]["subject"] == subject_code and course[0]["courseNumber"] == course_code:
                 self.all_courses.remove(course)
@@ -191,12 +191,18 @@ class CoursesRepository:
                     continue
                     
                 cur_section = copy.deepcopy(course[i])
+                # Filter out inactive classes here
+                if not cur_section["active"]:
+                    continue
                 
                 for j in range(i + 1, len(course)):
                     if used[j]:
                         continue
                         
-                    if (cur_section["meetingTimes"][0]["beginTime"] == course[j]["meetingTimes"][0]["beginTime"] 
+                    # Check if section is active, meetingTimes match, and days match.
+                    print(course[j]["active"])
+                    if (course[j]["active"]
+                        and cur_section["meetingTimes"][0]["beginTime"] == course[j]["meetingTimes"][0]["beginTime"] 
                         and cur_section["meetingTimes"][0]["endTime"] == course[j]["meetingTimes"][0]["endTime"]
                         and cur_section["meetingTimes"][0]["monday"] == course[j]["meetingTimes"][0]["monday"]
                         and cur_section["meetingTimes"][0]["tuesday"] == course[j]["meetingTimes"][0]["tuesday"]
@@ -233,4 +239,35 @@ class CoursesRepository:
         # Default to first color
         self.course_colors.append([subject, course_code, 0])
         return 0
+    
+    async def toggle_ignore_section(self, subject_code, course_code, section_code):
+        for course in self.all_courses:
+            if course[0]["subject"] == subject_code and course[0]["courseNumber"] == course_code:
+                for section in course:
+                    if section["sequenceNumber"] == section_code:
+                        section["active"] = not section["active"]
+
+
+    # async def toggle_lock_section(self, subject_code, course_code, section_code):
+        
+    #     for course in self.all_courses:
+    #         if course[0]["subject"] == subject_code and course[0]["courseNumber"] == course_code:
+    #             locking = True
+    #             for section in course:
+    #                 available_count = 0
+    #                 if section["sequenceNumber"] == section_code:
+    #                     if section["active"]:
+    #                         available_count += 1
+    #             if available_count == 1:
+    #                 locking = False
+    #             print("locking", locking)
+    #             for section in course:
+    #                 if not locking:
+    #                     section["active"] = True
+
+    #                 elif section["sequenceNumber"] == section_code:
+    #                     section["active"] = True
+                    
+    #                 else:
+    #                     section["active"] = False
     

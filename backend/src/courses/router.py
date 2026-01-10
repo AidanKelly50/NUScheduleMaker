@@ -3,7 +3,7 @@ from fastapi import APIRouter, HTTPException
 
 from courses.repository import CoursesRepository
 from courses.service import CoursesService
-from schemas import Course, CourseInfo, Message, Schedule, Semester, Subject
+from schemas import Course, CourseInfo, Message, Schedule, Semester, Subject, SectionInfo
 from courses.dependencies import get_courses_service
 
 service = CoursesService(CoursesRepository())
@@ -44,19 +44,19 @@ def courses_router() -> APIRouter:
     
     @router.get("/allcourses", response_model=List[Course])
     async def get_all_courses():
-        try:
-            return await service.list_all_courses()
+        # try:
+        return await service.list_all_courses()
         
-        except Exception:
-            raise HTTPException(status_code=500, detail="Failed to get all courses.")
+        # except Exception:
+        #     raise HTTPException(status_code=500, detail="Failed to get all courses.")
         
 
     @router.patch("/schedules", response_model=Message)
     async def generate_possible_schedules():
-        # try:
-        return await service.generate_possible_schedules()
-        # except Exception:
-        #     raise HTTPException(status_code=500, detail="Failed to generate schedules.")
+        try:
+            return await service.generate_possible_schedules()
+        except Exception:
+            raise HTTPException(status_code=500, detail="Failed to generate schedules.")
         
     @router.get("/schedules", response_model=List[Schedule])
     async def get_schedules():
@@ -69,11 +69,31 @@ def courses_router() -> APIRouter:
     async def remove_given_course(
         course_info: CourseInfo,
     ):
-        # try:
-        return await service.remove_course(course_info.subject_code, course_info.course_code)
+        try:
+            return await service.remove_course(course_info.subject_code, course_info.course_code)
         
-        # except Exception:
-        #     raise HTTPException(status_code=500, detail="Failed to get course sections.")
+        except Exception:
+            raise HTTPException(status_code=500, detail="Failed to get course sections.")
+        
+    @router.patch("/ignoresection", response_model=Message)
+    async def ignore_section(
+        section_info: SectionInfo,
+    ):
+        try:
+            return await service.ignore_section(section_info.subject_code, section_info.course_code, section_info.section_code)
+        
+        except Exception:
+            raise HTTPException(status_code=500, detail="Failed to get course sections.")
+        
+    # @router.patch("/locksection", response_model=Message)
+    # async def lock_section(
+    #     section_info: SectionInfo,
+    # ):
+    #     # try:
+    #     return await service.lock_section(section_info.subject_code, section_info.course_code, section_info.section_code)
+        
+    #     # except Exception:
+    #     #     raise HTTPException(status_code=500, detail="Failed to get course sections.")
     
     return router
 

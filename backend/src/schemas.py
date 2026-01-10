@@ -10,6 +10,11 @@ class CourseInfo(BaseAPIModel):
     subject_code: str
     course_code: str
 
+class SectionInfo(BaseAPIModel):
+    subject_code: str
+    course_code: str
+    section_code: str
+
 class Semester(BaseAPIModel):
     code: str
     description: str
@@ -38,6 +43,7 @@ class Section(BaseAPIModel):
     faculty: List[str]
     instructional_method: str
     meeting_times: List[MeetingTime]
+    active: bool
 
 class CalendarSection(Section):
     subject: str

@@ -67,6 +67,7 @@ class CoursesService:
                     faculty=section["faculty"],
                     instructional_method=section["instructionalMethod"],
                     meeting_times=formatted_meetings,
+                    active=section["active"]
                 )
                 formatted_sections.append(cur_section)
 
@@ -109,7 +110,8 @@ class CoursesService:
                     meeting_times=formatted_meetings,
                     subject=all_courses[i].subject,
                     course_number=all_courses[i].course_number,
-                    color_code=all_courses[i].color_code
+                    color_code=all_courses[i].color_code,
+                    active=True
                 )
                 formatted_single_schedule.append(cur_section)
             
@@ -118,4 +120,11 @@ class CoursesService:
 
         return formatted_schedules
     
+    async def ignore_section(self, subject_code, course_code, section_code):
+        await self.repository.toggle_ignore_section(subject_code, course_code, section_code)
+        return Message(text="Section active status changed.")
+    
+    # async def lock_section(self, subject_code, course_code, section_code):
+    #     await self.repository.toggle_lock_section(subject_code, course_code, section_code)
+    #     return Message(text="Locked/unlocked a section.")
 

@@ -1,4 +1,4 @@
-import { useCourses, useRemoveCourse } from "@/hooks/courses.hooks";
+import { useCourses, useIgnoreSection, useRemoveCourse } from "@/hooks/courses.hooks";
 import type { MeetingTime, Section } from "@/types";
 import { classColors, stringToTimestring } from "@/lib/utils";
 import { Circle } from "lucide-react";
@@ -10,6 +10,7 @@ import { HoverCard, HoverCardTrigger, HoverCardContent } from "@/components/ui/h
 export default function CoursesDisplay() {
   const { data } = useCourses();
   const { mutate: removeCourse } = useRemoveCourse();
+  const { mutate: ignoreSection } = useIgnoreSection();
 
   const getTimeText = (section: Section) => {
     let result: string = "";
@@ -93,6 +94,8 @@ export default function CoursesDisplay() {
     return result;
   };
 
+  console.log(data);
+
   return (
     <div>
       {data?.map((course) => (
@@ -121,7 +124,11 @@ export default function CoursesDisplay() {
 
           {course.sections.map((section) => (
             <div className="flex items-center">
-              <div className="pl-7 text-[15px] mb-1.5">
+              <div
+                className={`pl-7 text-[15px] mb-1.5 ${
+                  section.active ? "text-black" : "text-muted-foreground"
+                }`}
+              >
                 Section: {section.sequenceNumber} |{" "}
                 {getTimeText(section).length <= 24 ? (
                   getTimeText(section) + " "
@@ -144,11 +151,18 @@ export default function CoursesDisplay() {
                   {section.seatsAvailable}/{section.maximumEnrollment}
                 </span>
               </div>
-              <Toggle variant={"secondary"} className="ml-auto h-8 w-32">
-                Lock Section
-              </Toggle>
-              <Toggle variant={"secondary"} className="ml-4 h-8 w-32">
-                Ignore Section
+              <Toggle
+                variant={"secondary"}
+                className="ml-auto h-8 w-32"
+                onClick={() =>
+                  ignoreSection({
+                    subjectCode: course.subject,
+                    courseCode: course.courseNumber,
+                    sectionCode: section.sequenceNumber,
+                  })
+                }
+              >
+                {section["active"] ? "Ignore Section" : "Activate Section"}
               </Toggle>
             </div>
           ))}

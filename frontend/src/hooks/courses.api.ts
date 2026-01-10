@@ -89,3 +89,51 @@ export const removeCourse = async ({
   });
   return data;
 };
+
+/**
+ * Set a section of a course to inactive.
+ * @param subjectCode The code of the subject of the course to remove
+ * @param courseCode The code of the course to remove
+ * @param sectionCode The code of the section to remove
+ * @returns Success message
+ */
+export const toggleIgnoreSection = async ({
+  subjectCode,
+  courseCode,
+  sectionCode,
+}: {
+  subjectCode: string;
+  courseCode: string;
+  sectionCode: string;
+}) => {
+  const { data }: { data: Message } = await api.patch("/ignoresection", {
+    subjectCode: subjectCode,
+    courseCode: courseCode,
+    sectionCode: sectionCode,
+  });
+  return data;
+};
+
+// /**
+//  * Set a section of a course to locked.
+//  * @param subjectCode The code of the subject of the course to remove
+//  * @param courseCode The code of the course to remove
+//  * @param sectionCode The code of the section to remove
+//  * @returns Success message
+//  */
+// export const toggleLockSection = async ({
+//   subjectCode,
+//   courseCode,
+//   sectionCode,
+// }: {
+//   subjectCode: string;
+//   courseCode: string;
+//   sectionCode: string;
+// }) => {
+//   const { data }: { data: Message } = await api.patch("/locksection", {
+//     subjectCode: subjectCode,
+//     courseCode: courseCode,
+//     sectionCode: sectionCode,
+//   });
+//   return data;
+// };
